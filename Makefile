@@ -4,11 +4,11 @@ BUSYBOX := busybox
 default: kernel.img rootfs.img
 
 run: kernel.img rootfs.img
-	qemu-system-x86_64 -kernel kernel.img -append "root=/dev/ram rdinit=/sbin/init" -initrd rootfs.img -net nic,model=e1000 -net user
+	qemu-system-x86_64 -kernel kernel.img -append "root=/dev/sda rw init=/sbin/init" -hda rootfs.img -curses -net nic,model=e1000 -net tap,vlan=0
 
 debug: kernel.img rootfs.img
-	qemu-system-x86_64 -kernel kernel.img -append "root=/dev/ram rdinit=/sbin/init kgdboc=ttyS0,115200 kgdbwait" -initrd rootfs.img -net nic,model=e1000 -net user -serial tcp::1234,server &
-	TMPFILE=$$(mktemp) && echo "target remote localhost:1234" > $$TMPFILE && gdb -x $$TMPFILE $(LINUX)/vmlinux
+	qemu-system-x86_64 -kernel kernel.img -append "root=/dev/ram rdinit=/sbin/init kgdboc=ttyS0,115200 kgdbwait" -initrd rootfs.img -net nic,model=e1000 -net user -serial tcp::1234,server -curses &
+#	TMPFILE=$$(mktemp) && echo "target remote localhost:1234" > $$TMPFILE && gdb -x $$TMPFILE $(LINUX)/vmlinux
 
 clean:
 	rm -f kernel.img rootfs.img
