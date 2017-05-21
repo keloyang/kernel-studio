@@ -1,5 +1,13 @@
-LINUX := linux
-BUSYBOX := busybox
+LINUX := /root/workspace/linux-4.4.40
+BUSYBOX := /root/workspace/busybox-1.26.0
+
+ifneq ($(linux), )
+	LINUX=$(linux)
+endif
+
+ifneq ($(busybox), )
+	BUSYBOX=$(busybox)
+endif
 
 default: kernel.img rootfs.img
 
@@ -23,9 +31,9 @@ kernel.img: $(LINUX)/.config
 
 rootfs.img: $(BUSYBOX)/.config
 	make -C $(BUSYBOX) install -j4
-	./mkrootfs $@
+	./mkrootfs $@ $(BUSYBOX)
 
 install $(LINUX)/.config $(BUSYBOX)/.config:
-	./install
+	./install $(LINUX) $(BUSYBOX)
 
 .PHONY: default run debug clean update install

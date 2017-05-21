@@ -1,27 +1,28 @@
 #!/bin/bash
 
-[ "$#" = "1" ] || { echo "Usage: $(basename "$0") filename_of_image"; exit 1; }
+[ "$#" != "3" ] || { echo "Usage: $(basename "$0") filename_of_image busybox_dir"; exit 1; }
 
 CWD=$(pwd)
-BUSYBOX=busybox
-
+BUSYBOX=$2
 TMPDIR=rootfs
 mkdir -p $TMPDIR
 dd if=/dev/zero of=rootfs.img bs=1M count=10
 mkfs.ext3 rootfs.img
 mount -o loop rootfs.img $TMPDIR
-cd $TMPDIR
+cd  $TMPDIR
 mkdir -p dev etc/init.d mnt proc root sys tmp
 chmod a+rwxt tmp
 
-cp -rf ${CWD}/${BUSYBOX}/_install/* ./
+cd ${CWD}
+cp -rf ${BUSYBOX}/_install/* $TMPDIR
 
+cd  $TMPDIR
 mkdir -p usr/share/udhcpc
-#cp -rf ${CWD}/${BUSYBOX}/examples/udhcp/simple.script ./usr/share/udhcpc/default.script
+#cp -rf ${BUSYBOX}/examples/udhcp/simple.script  $TMPDIR/usr/share/udhcpc/default.script
 
 cat << EOF > etc/profile
 echo
-echo "Let's hack the kernel!"
+echo "Let's hack the kernel! keloyang"
 echo
 EOF
 
@@ -50,16 +51,15 @@ ifconfig eth0 172.20.0.10 netmask 255.255.255.0
 route add default gw 172.20.0.1
 EOF
 
-cat << EOF > /etc/resolv.conf
+cat << EOF > etc/resolv.conf
 nameserver 192.168.1.1
 EOF
 
 chmod 755 etc/init.d/rcS
 
 #find ./ | cpio -o -H newc | gzip > ${CWD}/${1}
-cd $CWD
+cd ${CWD}
 umount $TMPDIR
-
 rm -rf $TMPDIR
 
 echo 1 > /proc/sys/net/ipv4/ip_forward

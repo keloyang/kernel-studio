@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # source directories
-LINUX=linux
-BUSYBOX=busybox
+LINUX=$1
+BUSYBOX=$2
 
 # setting up linux source tree
 
