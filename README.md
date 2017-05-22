@@ -27,3 +27,6 @@ Before everything, do read and get through each file.
 	make debug
 ## run qemu
 qemu-system-x86_64 -M pc -kernel bzImage -drive file=rootfs.ext2,if=ide -append "root=/dev/sda rw console=ttyS0 selinux=1" -net nic,model=rtl8139 -net user -display none -serial stdio
+
+## network
+-net user, this mode need "sysctl -w net.ipv4.ping_group_range='0 2147483647'"
