@@ -13,6 +13,7 @@ default: kernel.img rootfs.img
 
 run: kernel.img rootfs.img
 	qemu-system-x86_64 -kernel kernel.img -append "root=/dev/sda rw init=/sbin/init" -hda rootfs.img -curses -net nic,model=e1000 -net tap,vlan=0
+	#qemu-system-x86_64 -kernel kernel.img -append "root=/dev/sda rw init=/sbin/init console=ttyS0" -hda rootfs.img -curses -net nic,model=e1000 -net tap,vlan=0 -display none -serial stdio
 
 debug: kernel.img rootfs.img
 	qemu-system-x86_64 -kernel kernel.img -append "root=/dev/ram rdinit=/sbin/init kgdboc=ttyS0,115200 kgdbwait" -initrd rootfs.img -net nic,model=e1000 -net user -serial tcp::1234,server -curses &

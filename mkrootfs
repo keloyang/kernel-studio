@@ -6,16 +6,18 @@ CWD=$(pwd)
 BUSYBOX=$2
 TMPDIR=rootfs
 mkdir -p $TMPDIR
-dd if=/dev/zero of=rootfs.img bs=1M count=10
+dd if=/dev/zero of=rootfs.img bs=1M count=32
 mkfs.ext3 rootfs.img
 mount -o loop rootfs.img $TMPDIR
 cd  $TMPDIR
-mkdir -p dev etc/init.d mnt proc root sys tmp
+mkdir -p dev/pts etc/init.d mnt proc root sys tmp usr/local
 chmod a+rwxt tmp
 
 cd ${CWD}
 cp -rf ${BUSYBOX}/_install/* $TMPDIR
-
+cp -rf app/bin/* $TMPDIR/bin
+cp -rf app/workspace $TMPDIR
+cp -rf app/pkg/* $TMPDIR/usr/local
 cd  $TMPDIR
 mkdir -p usr/share/udhcpc
 #cp -rf ${BUSYBOX}/examples/udhcp/simple.script  $TMPDIR/usr/share/udhcpc/default.script
@@ -43,12 +45,15 @@ cat << EOF > etc/init.d/rcS
 #!bin/sh
 /bin/mount -a
 /sbin/mdev -s
-#/sbin/ifconfig eth0 up >/dev/null 2>&1 \
-&& /sbin/udhcpc eth0 >/dev/null 2>&1
+mkdir /dev/pts
+mount -vt devpts devpts /dev/pts
+#/sbin/ifconfig eth0 up >/dev/null 2>&1 && /sbin/udhcpc eth0 >/dev/null 2>&1
 ifconfig lo up
 ifconfig eth0 up
 ifconfig eth0 172.20.0.10 netmask 255.255.255.0
 route add default gw 172.20.0.1
+
+/usr/local/sshdog/start.sh
 EOF
 
 cat << EOF > etc/resolv.conf
